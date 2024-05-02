@@ -637,6 +637,8 @@ def get_official_model_name(model_name: str):
     """
     Returns the official model name for a given model name (or alias).
     """
+    # ignore this "official" stuff
+    return model_name
     model_alias_map = make_model_alias_map()
     official_model_name = model_alias_map.get(model_name.lower(), None)
     if official_model_name is None:
@@ -656,18 +658,13 @@ def convert_hf_model_config(model_name: str, **kwargs):
     # In case the user passed in an alias
     official_model_name = get_official_model_name(model_name)
     # Load HuggingFace model config
-    if "llama" in official_model_name.lower():
-        architecture = "LlamaForCausalLM"
-    elif "gemma" in official_model_name.lower():
-        architecture = "GemmaForCausalLM"
-    else:
-        huggingface_token = os.environ.get("HF_TOKEN", None)
-        hf_config = AutoConfig.from_pretrained(
-            official_model_name,
-            token=huggingface_token,
-            **kwargs,
-        )
-        architecture = hf_config.architectures[0]
+    huggingface_token = os.environ.get("HF_TOKEN", None)
+    hf_config = AutoConfig.from_pretrained(
+        official_model_name,
+        token=huggingface_token,
+        **kwargs,
+    )
+    architecture = hf_config.architectures[0]
 
     if official_model_name.startswith(
         ("llama-7b", "meta-llama/Llama-2-7b")
@@ -816,6 +813,26 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "d_vocab": 128256,
             "act_fn": "silu",
             "n_key_value_heads": 8,
+            "normalization_type": "RMS",
+            "positional_embedding_type": "rotary",
+            "rotary_adjacent_pairs": False,
+            "rotary_dim": 128,
+            "final_rms": True,
+            "gated_mlp": True,
+        }
+    # works for llama-3, probably not lower
+    elif architecture == "LlamaForCausalLM":
+        cfg_dict = {
+            "d_model": hf_config.hidden_size,
+            "d_head": hf_config.hidden_size // hf_config.num_attention_heads,
+            "n_heads": hf_config.num_attention_heads,
+            "d_mlp": hf_config.intermediate_size,
+            "n_layers": hf_config.num_hidden_layers,
+            "n_ctx": hf_config.max_position_embeddings,
+            "eps": hf_config.rms_norm_eps,
+            "d_vocab": hf_config.vocab_size,
+            "act_fn": "silu",
+            "n_key_value_heads": hf_config.num_key_value_heads,
             "normalization_type": "RMS",
             "positional_embedding_type": "rotary",
             "rotary_adjacent_pairs": False,
