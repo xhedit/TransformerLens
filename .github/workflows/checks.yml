@@ -116,6 +116,22 @@ jobs:
   notebook-checks:
     name: Notebook Checks
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        notebook:
+          # - "Activation_Patching_in_TL_Demo"
+          # - "Attribution_Patching_Demo"
+          - "BERT"
+          - "Exploratory_Analysis_Demo"
+          # - "Grokking_Demo"
+          # - "Head_Detector_Demo"
+          # - "Hooked_SAE_Transformer_Demo"
+          # - "Interactive_Neuroscope"
+          # - "LLaMA"
+          # - "LLaMA2_GPU_Quantized"
+          - "Main_Demo"
+          # - "No_Position_Experiment"
+          - "Othello_GPT"
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
@@ -141,14 +157,15 @@ jobs:
           version: 1.0
       - name: Check Notebook Output Consistency
         # Note: currently only checks notebooks we have specifically setup for this
-        run: make notebook-test
+        run: poetry run pytest --nbval-sanitize-with demos/doc_sanitize.cfg demos/${{ matrix.notebook }}.ipynb
 
 
   build-docs:
     # When running on a PR, this just checks we can build the docs without errors
     # When running on merge to main, it builds the docs and then another job deploys them
-    name: ${{ github.event_name == 'pull_request' && 'Check Build Docs' || 'Build Docs' }}
+    name: 'Build Docs'
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     needs: code-checks
     steps:
       - uses: actions/checkout@v4
@@ -166,15 +183,15 @@ jobs:
           version: 1.0
       - name: Install dependencies
         run: poetry install --with docs
-      - name: Build Docs
-        run: HF_TOKEN="$HF_TOKEN" poetry run build-docs
-        env:
-          HF_TOKEN: "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"
       - name: Download Test Coverage Artifact
         uses: actions/download-artifact@v3
         with:
           name: test-coverage
-          path: docs/build/coverage
+          path: docs/source/_static/coverage
+      - name: Build Docs
+        run: poetry run build-docs
+        env:
+          HF_TOKEN:  ${{ secrets.HF_TOKEN }}
       - name: Upload Docs Artifact
         uses: actions/upload-artifact@v3
         with:
