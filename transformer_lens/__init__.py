@@ -10,11 +10,9 @@ from .HookedTransformerConfig import HookedTransformerConfig
 from .FactoredMatrix import FactoredMatrix
 from .ActivationCache import ActivationCache
 from .HookedTransformer import HookedTransformer
-from .HookedSAEConfig import HookedSAEConfig
-from .HookedSAE import HookedSAE
-from .HookedSAETransformer import HookedSAETransformer
 from .SVDInterpreter import SVDInterpreter
 from .HookedEncoder import HookedEncoder
+from .HookedEncoderDecoder import HookedEncoderDecoder
 from . import head_detector
 from . import loading_from_pretrained as loading
 from . import patching
