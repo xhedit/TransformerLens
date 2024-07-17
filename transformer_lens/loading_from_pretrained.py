@@ -709,20 +709,13 @@ def convert_hf_model_config(model_name: str, **kwargs):
         official_model_name = get_official_model_name(model_name)
 
     # Load HuggingFace model config
-    if "llama" in official_model_name.lower():
-        architecture = "LlamaForCausalLM"
-    elif "gemma-2" in official_model_name.lower():
-        architecture = "Gemma2ForCausalLM"
-    elif "gemma" in official_model_name.lower():
-        architecture = "GemmaForCausalLM"
-    else:
-        huggingface_token = os.environ.get("HF_TOKEN", None)
-        hf_config = AutoConfig.from_pretrained(
-            official_model_name,
-            token=huggingface_token,
-            **kwargs,
-        )
-        architecture = hf_config.architectures[0]
+    huggingface_token = os.environ.get("HF_TOKEN", None)
+    hf_config = AutoConfig.from_pretrained(
+        official_model_name,
+        token=huggingface_token,
+        **kwargs,
+    )
+    architecture = hf_config.architectures[0]
 
     if official_model_name.startswith(
         ("llama-7b", "meta-llama/Llama-2-7b")
@@ -1261,9 +1254,9 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "use_attn_scale": True,
             "attn_scale": math.sqrt(hf_config.query_pre_attn_scalar),
             "n_key_value_heads": hf_config.num_key_value_heads,
-            "window_size": hf_config.window_size,
+            "window_size": hf_config.sliding_window,
             "use_local_attn": True,
-            "attn_types": ["global", "local"] * (hf_config.num_hidden_layers / 2),  # Alternate global and local attn
+            "attn_types": ["global", "local"] * int(hf_config.num_hidden_layers / 2),  # Alternate global and local attn
             "attn_scores_soft_cap": hf_config.attn_logit_softcapping,
             "output_logits_soft_cap": hf_config.final_logit_softcapping,
             "gated_mlp": True,
@@ -1290,9 +1283,9 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "use_attn_scale": True,
             "attn_scale": math.sqrt(hf_config.query_pre_attn_scalar),
             "n_key_value_heads": hf_config.num_key_value_heads,
-            "window_size": hf_config.window_size,
+            "window_size": hf_config.sliding_window,
             "use_local_attn": True,
-            "attn_types": ["global", "local"] * (hf_config.num_hidden_layers / 2),  # Alternate global and local attn
+            "attn_types": ["global", "local"] * int(hf_config.num_hidden_layers / 2),  # Alternate global and local attn
             "attn_scores_soft_cap": hf_config.attn_logit_softcapping,
             "output_logits_soft_cap": hf_config.final_logit_softcapping,
             "gated_mlp": True,
@@ -1319,9 +1312,9 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "use_attn_scale": True,
             "attn_scale": math.sqrt(hf_config.query_pre_attn_scalar),
             "n_key_value_heads": hf_config.num_key_value_heads,
-            "window_size": hf_config.window_size,
+            "window_size": hf_config.sliding_window,
             "use_local_attn": True,
-            "attn_types": ["global", "local"] * (hf_config.num_hidden_layers / 2),  # Alternate global and local attn
+            "attn_types": ["global", "local"] * int(hf_config.num_hidden_layers / 2),  # Alternate global and local attn
             "attn_scores_soft_cap": hf_config.attn_logit_softcapping,
             "output_logits_soft_cap": hf_config.final_logit_softcapping,
             "gated_mlp": True,
