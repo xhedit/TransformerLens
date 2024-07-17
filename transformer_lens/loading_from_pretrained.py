@@ -1196,7 +1196,7 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "rotary_dim": hf_config.hidden_size // hf_config.num_attention_heads,
         }
 
-    elif official_model_name.startswith("google/gemma-2b"):
+    elif architecture == "GemmaForCausalLM" and "gemma-2b" in official_model_name:
         # Architecture for Gemma 2b and Gemma 2b Instruct models
         cfg_dict = {
             "d_model": 2048,
@@ -1218,7 +1218,7 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "gated_mlp": True,
             "final_rms": True,
         }
-    elif official_model_name.startswith("google/gemma-7b"):
+    elif architecture == "GemmaForCausalLM" and "gemma-7b" in official_model_name:
         # Architecture for Gemma 7b and Gemma 7b Instruct models
         cfg_dict = {
             "d_model": 3072,
@@ -1240,7 +1240,7 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "gated_mlp": True,
             "final_rms": True,
         }
-    elif official_model_name.startswith("google/gemma-2-9b"):
+    elif elif architecture == "Gemma2ForCausalLM" and "gemma-2-9b" in official_model_name.lower():
         # Architecture for Gemma-2 9b and Gemma-2 9b Instruct models
         cfg_dict = {
             "d_model": 3584,
@@ -1257,7 +1257,7 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "rotary_base": 10000.0,
             "positional_embedding_type": "rotary",
             "use_attn_scale": True,
-            "attn_scale": math.sqrt(224),
+            "attn_scale": math.sqrt(256),
             "n_key_value_heads": 8,
             "window_size": 4096,
             "use_local_attn": True,
@@ -1268,7 +1268,7 @@ def convert_hf_model_config(model_name: str, **kwargs):
             "final_rms": True,
             "use_normalization_before_and_after": True,
         }
-    elif official_model_name.startswith("google/gemma-2-27b"):
+    elif architecture == "Gemma2ForCausalLM" and "gemma-2-27b" in official_model_name.lower():
         # Architecture for Gemma-2 27b and Gemma-2 27b Instruct models
         cfg_dict = {
             "d_model": 4608,
